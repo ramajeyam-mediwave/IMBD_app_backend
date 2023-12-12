@@ -13,7 +13,10 @@ const addMovieController = async (req, res, next) => {
         release_year: req.body.release_year,
         movie_desc: req.body.movie_desc,
         user_id: req.decoded.user_id,
-      });
+        image: req.body.image,       });
+
+      // const addedMovie = await models.movies.findByPk(movieCreate.movie_id);
+
       res.json({
         movieCreate,
       });
@@ -31,10 +34,10 @@ const addMovieController = async (req, res, next) => {
 };
 const getAllMovieController = async (req, res, next) => {
   try {
-    const getMovie = await models.movies.findAll({});
-    res.json({
-      getMovie,
+    const getMovie = await models.movies.findAll({
+      attributes: ["movie_name", "release_year", "image"],
     });
+    res.json(getMovie);
   } catch (error) {
     return res.json({
       message: error.message,

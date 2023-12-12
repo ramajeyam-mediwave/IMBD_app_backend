@@ -22,6 +22,10 @@ module.exports = function model(sequelize, types) {
         type: types.STRING,
         allowNull: false,
       },
+      image: {
+        type: types.STRING,
+        allowNull: false,
+      },
       user_id: {
         type: types.UUID,
         references: {
