@@ -20,6 +20,11 @@ userRouter.post("/login", validate(loginSchema), loginController);
 
 userRouter.get("/user/:id", isAuthorised, accountViewController);
 
-userRouter.patch("/user/:id", validate(updateSchema), updateController);
+userRouter.patch(
+  "/user/:id", 
+  isAuthorised,
+  validate(updateSchema),
+  updateController
+);
 
 module.exports = userRouter;

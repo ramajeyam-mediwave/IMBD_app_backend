@@ -39,7 +39,6 @@ const loginController = async (req, res, next) => {
     const searchUser = await models.users.findOne({
       where: {
         email: req.body.email,
-        //  user_password: req.body.user_password
       },
     });
     if (searchUser === null) {
@@ -68,7 +67,7 @@ const loginController = async (req, res, next) => {
           },
           {
             where: {
-              id: searchUser.id,
+              user_id: searchUser.user_id,
             },
             returning: true,
           }
@@ -107,6 +106,7 @@ const updateController = async (req, res, next) => {
   try {
     const searchUser = await models.users.findOne({
       where: { user_id: req.decoded.user_id },
+      
     });
     if (searchUser === null) {
       return next({
@@ -130,6 +130,8 @@ const updateController = async (req, res, next) => {
           returning: true,
           individualHooks: true,
         }
+      
+        
       );
 
       res.json({
@@ -138,7 +140,7 @@ const updateController = async (req, res, next) => {
     }
   } catch (error) {
     return res.json({
-      message: error.errors.map((d) => d.message),
+      message: error.message,
     });
   }
 };
