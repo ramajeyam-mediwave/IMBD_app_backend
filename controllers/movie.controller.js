@@ -15,7 +15,6 @@ const addMovieController = async (req, res, next) => {
         user_id: req.decoded.user_id,
         image: req.body.image,       });
 
-      // const addedMovie = await models.movies.findByPk(movieCreate.movie_id);
 
       res.json({
         movieCreate,
