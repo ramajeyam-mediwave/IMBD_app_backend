@@ -3,6 +3,7 @@ const { validate } = require("../middlewares/validate.middleware");
 const {
   addMovieController,
   getAllMovieController,
+  getoneMovieController,
 } = require("../controllers/movie.controller");
 const { addMovieSchema } = require("../validations/movie.schema");
 const { isAuthorised } = require("../middlewares/authorisation.middleware");
@@ -18,6 +19,8 @@ movieRouter.post(
   addMovieController
 );
 movieRouter.get("/movies", getAllMovieController);
+
+movieRouter.get("/movies/:movie_id", getoneMovieController);
 
 movieRouter.post(
   "/movie/rating",
