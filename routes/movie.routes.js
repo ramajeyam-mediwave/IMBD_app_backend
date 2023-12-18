@@ -20,7 +20,7 @@ movieRouter.post(
 );
 movieRouter.get("/movies", getAllMovieController);
 
-movieRouter.get("/movies/:movie_id", getoneMovieController);
+movieRouter.get("/movies/:id", getoneMovieController);
 
 movieRouter.post(
   "/movie/rating",

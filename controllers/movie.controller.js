@@ -72,10 +72,7 @@ const getAllMovieController = async (req, res, next) => {
 };
 const getoneMovieController = async (req, res, next) => {
   try {
-    const { movie_id } = req.params;
-
     const getMovie = await models.movies.findOne({
-      where: { movie_id },
       attributes: [
         "movie_id",
         "movie_name",
@@ -83,41 +80,53 @@ const getoneMovieController = async (req, res, next) => {
         "image",
         "movie_desc",
       ],
+      where: { movie_id: req.params.id },
       include: [
         {
           model: models.ratings,
           as: "ratings",
           attributes: ["rating"],
+          include: [
+            {
+              model: models.users,
+              as: "userRating",
+              attributes: ["user_name"],
+            },
+          ],
+        },
+        {
+          model: models.users,
+          as: "addedBy",
+          attributes: ["user_name"],
         },
       ],
+      logging: true,
     });
 
-    if (!getMovie) {
-      return res.status(404).json({ message: "Movie not found" });
-    }
+    const ratings = getMovie.ratings.map((rating) => ({
+      rating: rating.rating,
+      ratedBy: rating.userRating.user_name,
+    }));
 
-    const ratings = getMovie.ratings.map((rating) => rating.rating);
-    const numberOfRatings = ratings.length;
+    const overallRating = getMovie.ratings.length
+      ? getMovie.ratings.reduce((total, rating) => total + rating.rating, 0) /
+        getMovie.ratings.length
+      : 0;
 
-    let sum = 0;
-    for (let i = 0; i < numberOfRatings; i++) {
-      sum += ratings[i];
-    }
-
-    const overallRating = numberOfRatings > 0 ? sum / numberOfRatings : 0;
-
-    const oneMovie = {
+    const movieWithFormattedData = {
       movie_id: getMovie.movie_id,
       movie_name: getMovie.movie_name,
       release_year: getMovie.release_year,
-      image: getMovie.image,
-      rating: overallRating,
       movie_desc: getMovie.movie_desc,
+      image: getMovie.image,
+      addedBy: getMovie.addedBy.user_name,
+      ratings,
+      overallRating,
     };
 
-    res.json(oneMovie);
+    res.json(movieWithFormattedData);
   } catch (error) {
-    return res.status(500).json({
+    return res.json({
       message: error.message,
     });
   }
