@@ -23,7 +23,7 @@ movieRouter.get("/movies", getAllMovieController);
 movieRouter.get("/movies/:id", getoneMovieController);
 
 movieRouter.post(
-  "/movie/rating",
+  "/movie/rating/:id",
   isAuthorised,
   validate(addRatingSchema),
   addRatingController
