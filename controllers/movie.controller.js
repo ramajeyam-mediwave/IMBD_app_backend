@@ -1,5 +1,7 @@
 const { models } = require("../config/sequelize-config");
 const config = require("../config/config");
+const { Op } = require("sequelize");
+
 
 const addMovieController = async (req, res, next) => {
   try {
@@ -31,10 +33,28 @@ const addMovieController = async (req, res, next) => {
     });
   }
 };
+
 const getAllMovieController = async (req, res, next) => {
+  let whereQuery = {};
+  let sort_name;
+  if (req.query.search) {
+    whereQuery.movie_name = {
+      [Op.iLike]: `%${req.query.search}%`,
+    };
+  }
+  if (req.query.movie_name) {
+    sort_name = req.query.movie_name;
+  }
   try {
-    const getMovies = await models.movies.findAll({
+    const pageSize = parseInt(req.query.pagesize) || 3;
+    const page = parseInt(req.query.page) || 1;
+
+    const { count, rows: movies } = await models.movies.findAndCountAll({
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
       attributes: ["movie_id", "movie_name", "release_year", "image"],
+      where: whereQuery,
+      order: [["movie_name", sort_name ? sort_name : "ASC"]],
       include: [
         {
           model: models.ratings,
@@ -43,17 +63,12 @@ const getAllMovieController = async (req, res, next) => {
         },
       ],
     });
-    const oneMovie = getMovies.map((m) => {
-      const ratings = m.ratings.map((rating) => rating.rating);
-      const numberOfRatings = ratings.length;
 
-      let sum = 0;
-      for (let i = 0; i < numberOfRatings; i++) {
-        sum += ratings[i];
-      }
-
-      const overallRating = numberOfRatings > 0 ? sum / numberOfRatings : 0;
-
+    const oneMovie = movies.map((m) => {
+      const overallRating = m.ratings.length
+        ? m.ratings.reduce((total, rating) => total + rating.rating, 0) /
+          m.ratings.length
+        : 0;
       return {
         movie_id: m.movie_id,
         movie_name: m.movie_name,
@@ -63,13 +78,17 @@ const getAllMovieController = async (req, res, next) => {
       };
     });
 
-    res.json(oneMovie);
+    res.json({
+      totalMovies: count,
+      movies: oneMovie,
+    });
   } catch (error) {
     return res.json({
       message: error.message,
     });
   }
 };
+
 const getoneMovieController = async (req, res, next) => {
   try {
     const getMovie = await models.movies.findOne({
