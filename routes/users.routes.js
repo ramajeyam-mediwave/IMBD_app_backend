@@ -9,6 +9,8 @@ const {
   loginController,
   accountViewController,
   updateController,
+  forgetPassword,
+  updatePasswordController,
 } = require("../controllers/user.controller");
 const { validate } = require("../middlewares/validate.middleware");
 const { isAuthorised } = require("../middlewares/authorisation.middleware");
@@ -32,5 +34,15 @@ userRouter.patch(
   validate(updateSchema),
   updateController
 );
+      
+// userRouter.put(
+//   "/u/update/password",
+//   isAuthorised,
+//   validate(updatePasswordSchema),
+//   updatePasswordController
+// );
+
+
+userRouter.post("/forget/password", forgetPassword);
 
 module.exports = userRouter;
