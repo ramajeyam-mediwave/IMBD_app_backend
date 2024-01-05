@@ -3,6 +3,7 @@ const {
   signUpSchema,
   updateSchema,
   loginSchema,
+  updatePasswordSchema,
 } = require("../validations/authentication.schema");
 const {
   addUserController,
@@ -34,14 +35,13 @@ userRouter.patch(
   validate(updateSchema),
   updateController
 );
-      
-// userRouter.put(
-//   "/u/update/password",
-//   isAuthorised,
-//   validate(updatePasswordSchema),
-//   updatePasswordController
-// );
 
+userRouter.put(
+  "/u/update/password",
+  isAuthorised,
+  validate(updatePasswordSchema),
+  updatePasswordController
+);
 
 userRouter.post("/forget/password", forgetPassword);
 
