@@ -4,6 +4,8 @@ const {
   updateSchema,
   loginSchema,
   updatePasswordSchema,
+  forgetPasswordSchema,
+  updateNewPasswordSchema,
 } = require("../validations/authentication.schema");
 const {
   addUserController,
@@ -12,9 +14,11 @@ const {
   updateController,
   forgetPassword,
   updatePasswordController,
+  forgetPasswordContrller,
 } = require("../controllers/user.controller");
 const { validate } = require("../middlewares/validate.middleware");
 const { isAuthorised } = require("../middlewares/authorisation.middleware");
+const { otpVerificationController, setNewPasswordController } = require("../controllers/authentication.controller");
 const userRouter = express.Router();
 
 userRouter.post("/signup", validate(signUpSchema), addUserController);
@@ -43,6 +47,19 @@ userRouter.put(
   updatePasswordController
 );
 
-userRouter.post("/forget/password", forgetPassword);
+userRouter.post(
+  "/forget/password",
+  validate(forgetPasswordSchema),
+  forgetPasswordContrller
+);
+
+userRouter.patch(
+  "/update/new/password/:id",
+  validate(updateNewPasswordSchema),
+  setNewPasswordController
+);
+
+
+userRouter.post("/otp/verify/:id", otpVerificationController);
 
 module.exports = userRouter;

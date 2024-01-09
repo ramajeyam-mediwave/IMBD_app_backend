@@ -4,6 +4,7 @@ const {
   addMovieController,
   getAllMovieController,
   getoneMovieController,
+  deleteMovieController,
 } = require("../controllers/movie.controller");
 const { addMovieSchema } = require("../validations/movie.schema");
 const { isAuthorised } = require("../middlewares/authorisation.middleware");
@@ -28,5 +29,7 @@ movieRouter.post(
   validate(addRatingSchema),
   addRatingController
 );
+
+movieRouter.delete("/movie/:id", isAuthorised, deleteMovieController);
 
 module.exports = movieRouter;

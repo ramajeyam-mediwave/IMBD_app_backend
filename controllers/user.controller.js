@@ -215,11 +215,22 @@ const forgetPassword = async (req, res, next) => {
         user_id: searchUser.user_id,
       });
       const options = {
-        from: `sender<${mailConfig.email}>`,
-        to: req.body.email,
-        subject: "forget password",
-        html: `<p>otp: ${otp} </p> `,
-      };
+  from: `sender<${mailConfig.email}>`,
+  to: req.body.email,
+  subject: "Forget Password",
+  html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333; text-align: center;">Forget Password</h2>
+      <p style="color: #666; text-align: center;">Use the following OTP to reset your password:</p>
+      <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; text-align: center;">
+        <p style="font-size: 24px; color: #333; margin: 0;">OTP: ${otp}</p>
+      </div>
+      <p style="color: #666; text-align: center;">This OTP is valid for 5 minutes.</p>
+      <p style="color: #666; text-align: center;">If you didn't request a password reset, please ignore this email.</p>
+    </div>
+  `,
+};
+
 
       transporter.sendMail(options, (error, info) => {
         if (error) console.log("\n mail error..", error);
@@ -236,6 +247,72 @@ const forgetPassword = async (req, res, next) => {
   }
 };
 
+
+const forgetPasswordContrller = async (req, res, next) => {
+  console.log(req.body.email);
+  try {
+    const searchUser = await models.users.findOne({
+      attributes: ["user_id"],
+      where: { email: req.body.email },
+    });
+
+    const otp = otpGenerator.generate(6, {
+      digits: true,
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
+    if (searchUser === null) {
+      return next({
+        status: 400,
+        message: "User not found",
+      });
+    } else {
+      const OtpEntry = await models.verificationtable.create({
+        verification_type: "forget",
+        otp: otp,
+        expiresAt: new Date().getTime() + 5 * 60000,
+        user_id: searchUser.user_id,
+      });
+      if (OtpEntry) {
+        const options = {
+          from: `Ram<${mailConfig.email}>`,
+          to: req.body.email,
+          subject: "forget password",
+          html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333; text-align: center;">Forget Password</h2>
+            <p style="color: #666; text-align: center;">Use the following OTP to reset your password:</p>
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; text-align: center;">
+              <p style="font-size: 24px; color: #333; margin: 0;">OTP: ${otp}</p>
+            </div>
+            <p style="color: #666; text-align: center;">This OTP is valid for 5 minutes.</p>
+            <p style="color: #666; text-align: center;">If you didn't request a password reset, please ignore this email.</p>
+          </div>
+        `,
+        };
+
+        transporter.sendMail(options, (error, info) => {
+          if (error) console.log("\n mail error..", error);
+          return console.log("\n success...", info);
+        });
+
+        return res.json(searchUser);
+      } else {
+        return next({
+          status: 400,
+          message: "Otp not created",
+        });
+      }
+    }
+  } catch (error) {
+    return next({
+      status: 400,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   addUserController,
   loginController,
@@ -243,4 +320,5 @@ module.exports = {
   updateController,
   updatePasswordController,
   forgetPassword,
+  forgetPasswordContrller  
 };
