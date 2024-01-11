@@ -15,7 +15,7 @@ const addMovieController = async (req, res, next) => {
         release_year: req.body.release_year,
         movie_desc: req.body.movie_desc,
         user_id: req.decoded.user_id,
-        image: req.body.image,
+        image: req.file.filename,
       });
 
       res.json({

@@ -13,6 +13,7 @@ const jsonParser = bodyParser.json();
 
 // create application/x-www-form-urlencoded parser
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
+app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use(cors());
 app.use(jsonParser);
 app.use(urlencodedParser);

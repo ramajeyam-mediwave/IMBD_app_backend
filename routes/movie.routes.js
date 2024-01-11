@@ -10,12 +10,14 @@ const { addMovieSchema } = require("../validations/movie.schema");
 const { isAuthorised } = require("../middlewares/authorisation.middleware");
 const { addRatingController } = require("../controllers/rating.controller");
 const { addRatingSchema } = require("../validations/rating.schema");
+const { multerupload } = require("../middlewares/multerUpload.middleware");
 
 const movieRouter = express.Router();
 
 movieRouter.post(
   "/movie",
   isAuthorised,
+  multerupload("").single("file"),
   validate(addMovieSchema),
   addMovieController
 );
