@@ -163,20 +163,18 @@ const deleteMovieController = async (req, res, next) => {
         message: "Movie not found",
       });
     }
-    if (req.decoded.id !== getMovie.user_id) {
+    if (req.decoded.user_id !== getMovie.user_id) {
       return next({
         status: 403,
         message: "You don't have access to this movie",
       });
     } else {
-      // const result = await sequelize.transaction(async () => {
       const deleteMovie = await models.movies.destroy({
-        where: { id: req.params.id },
+        where: { movie_id: req.params.id },
         returning: true,
       });
 
       res.json({ deleteMovie });
-      // });
     }
   } catch (error) {
     return next({
